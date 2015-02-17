@@ -1,0 +1,38 @@
+ <!DOCTYPE html>
+
+ <html>
+ <head>
+ 	<title>Boten Johanna</title>
+ 	<style>
+ 	body, html {
+ 	   height: 100%;
+	}
+
+	#app,#scene {
+		width: 100%;
+    	height: 100%;
+	}
+ 	</style>
+ </head>
+ <body>
+ 	<h1>Processing.js Test</h1>
+ 	<div id="app">
+ 		<canvas id="scene"></canvas>
+ 	</div>
+
+ 	<script type="text/javascript" src="assets/lib/processing.min.js"></script>
+ 	<script type="text/javascript" src="target/scala-2.11/botenjohanna-fastopt.js"></script>
+ 	<script type="text/javascript">
+ 		window.onload = function () {
+ 			var scene = document.getElementById("scene");
+			
+			function mkSketch(processing) {
+				var launcher = new Launcher();
+				launcher.launch(processing);
+			}
+
+			new Processing(scene, mkSketch);
+		}
+ 	</script>
+</body>
+</html>
