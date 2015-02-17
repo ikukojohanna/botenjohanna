@@ -7,10 +7,17 @@ trait Processing extends js.Object {
   var setup: js.Function0[Unit] = js.native
   var draw: js.Function0[Unit] = js.native
   
+  def size(width: Int, height: Int): Unit = js.native
   def height: Float = js.native
   def width: Float = js.native
   
-  def color(r: Float, g: Float, b: Float): Int = js.native 
+  def pushMatrix(): Unit = js.native
+  def popMatrix(): Unit = js.native
+  def translate(x: Float, y: Float): Unit = js.native
+  def scale(x: Float, y: Float): Unit = js.native
+  
+  def color(r: Float, g: Float, b: Float): Int = js.native
+  def background(red: Int, green: Int, blue: Int): Unit = js.native
   
   def fill(color: Int): Unit = js.native
   def noFill(): Unit = js.native
@@ -33,8 +40,8 @@ trait Processing extends js.Object {
   
   def random(lower: Float, upper: Float): Double = js.native
   
-  def size(width: Int, height: Int): Unit = js.native
-  def background(red: Int, green: Int, blue: Int): Unit = js.native
+  def millis(): Int = js.native
+  
   def stroke(red: Int, green: Int, blue: Int): Unit = js.native
   def println(message: String): Unit = js.native
   
