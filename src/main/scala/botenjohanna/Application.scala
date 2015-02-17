@@ -4,6 +4,7 @@ import processing.Processing
 import processing.PConstants._
 import processing.PVector
 import scala.collection.mutable.ArrayBuffer
+import processing.PImage
 
 class Application(p: Processing) {
 
@@ -52,11 +53,54 @@ class Application(p: Processing) {
     }
   }
 
+  class Cloud(cloudImage: PImage) {
+
+    //toFloat is necessary as random does not follow the 
+    //specification and sometimes returns values outside of float limits 
+    val randomScale = p.random(0.5f, 2.0f).toFloat
+    val randomScaleX = p.random(0.75f, 1.25f).toFloat
+    val randomScaleY = p.random(0.75f, 1.25f).toFloat
+
+    val w = cloudImage.width * randomScale * randomScaleX
+    val h = cloudImage.height * randomScale * randomScaleY
+
+    var x = p.random(-w, p.width).toFloat
+    var y = p.random(-h, p.height).toFloat
+
+    val vX = p.random(2, 4).toFloat
+
+    def drawCloud() = {
+      p.noTint()
+      p.imageMode(CORNER)
+      p.image(cloudImage, x, y, w, h)
+    }
+
+    def animateCloud() = {
+      x += vX;
+
+      if (x > p.width) x = -w;
+    }
+  }
+
   class Scene {
+    val clouds = new ArrayBuffer[Cloud]
     val blocks = new ArrayBuffer[RoundedRect]
 
+    val cloudImage = p.loadImage("assets/images/cloud.png")
+    
+    for (i <- 0 until 5) {
+      clouds += new Cloud(cloudImage)
+    }
+    
     val blockStyle1 = new Style(p.color(150, 200, 250));
     val blockStyle2 = new Style(p.color(200, 200, 250));
+
+    addBlock(blockStyle1, 0, 200, 200);
+    addBlock(blockStyle2, 200, 250, 150);
+    addBlock(blockStyle1, 450, 350, 250);
+    addBlock(blockStyle2, 700, 200, 200);
+    addBlock(blockStyle1, 900, 350, 250);
+    addBlock(blockStyle2, 1100, 350, 200);
 
     def addBlock(blockStyle: Style, x: Float, blockWidth: Float, blockHeight: Float) {
       blocks += new RoundedRect(
@@ -66,31 +110,38 @@ class Application(p: Processing) {
         blockStyle);
     }
     
+    
+
     def drawScene() = {
+      for (c <- clouds) {
+        c.drawCloud()
+      }
       for (b <- blocks) {
-        b.drawRect();
+        b.drawRect()
       }
     }
 
-    addBlock(blockStyle1, 0, 200, 200);
-    addBlock(blockStyle2, 200, 250, 150);
-    addBlock(blockStyle1, 450, 350, 250);
-    addBlock(blockStyle2, 700, 200, 200);
-    addBlock(blockStyle1, 900, 350, 250);
-    addBlock(blockStyle2, 1100, 350, 200);
+    def animateScene() = {
+      for (c <- clouds) {
+        c.animateCloud()
+      }
+    }
 
   }
 
-  val scene = new Scene
-  val image = p.loadImage("assets/images/cloud.png")
-  
+  var scene: Scene = _
+
   def setup() = {
     p.size(1500, 800);
+    scene =  new Scene
   }
-  
+
   def draw() = {
+    p.background(192, 255, 255);
+
+    scene.animateScene()
     scene.drawScene()
-    p.image(image, 100, 100);
+    
   }
 
 }

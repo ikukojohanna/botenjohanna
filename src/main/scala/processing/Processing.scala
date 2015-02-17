@@ -8,6 +8,7 @@ trait Processing extends js.Object {
   var draw: js.Function0[Unit] = js.native
   
   def height: Float = js.native
+  def width: Float = js.native
   
   def color(r: Float, g: Float, b: Float): Int = js.native 
   
@@ -16,6 +17,7 @@ trait Processing extends js.Object {
   def stroke(color: Int): Unit = js.native
   def strokeWeight(weight: Int): Unit = js.native
   def noStroke(): Unit = js.native
+  def noTint(): Unit = js.native
   
   def ellipseMode(radius: Int): Unit = js.native
   def rectMode(mode: Int): Unit = js.native
@@ -25,8 +27,11 @@ trait Processing extends js.Object {
   def rect(x: Float, y: Float, width: Float, height: Float, tlradius: Float, trradius: Float, brradius: Float, blradius: Float): Unit = js.native
   
   def loadImage(location: String): PImage = js.native
+  def imageMode(mode: Int): Unit = js.native
   def image(img: PImage, x: Float, y: Float): Unit = js.native
   def image(img: PImage, x: Float, y: Float, width: Float, height: Float): Unit = js.native
+  
+  def random(lower: Float, upper: Float): Double = js.native
   
   def size(width: Int, height: Int): Unit = js.native
   def background(red: Int, green: Int, blue: Int): Unit = js.native
