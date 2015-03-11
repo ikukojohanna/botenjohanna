@@ -1,87 +1,82 @@
 package botenjohanna
 
-import processing.Processing
-import processing.PConstants._
-import processing.PVector
-import scala.collection.mutable.ArrayBuffer
-import processing.PImage
+import scala.scalajs.js.Any.fromString
+import scala.util.Random
 
-class Application(p: Processing) {
+import org.scalajs.dom.raw.CanvasRenderingContext2D
+import org.scalajs.dom.raw.KeyboardEvent
 
-  case class Style(
-    fillColor: Int,
-    strokeColor: Int,
-    strokeSize: Int,
-    enableFill: Boolean,
-    enableStroke: Boolean) {
+import botenjohanna.components.Cloud
+import botenjohanna.components.Coin
+import botenjohanna.components.RoundedRect
+import botenjohanna.components.Vector
 
-    def this(fillColor: Int) = this(fillColor, 0, 0, true, false)
+class Game(assets: Assets)(implicit ctx: CanvasRenderingContext2D) {
 
-    def set() {
-      if (enableFill) p.fill(fillColor);
-      else p.noFill();
+  val blockStyle1 = "#96c8fa"
+  val blockStyle2 = "#c8c8fa"
 
-      if (enableStroke) {
-        p.stroke(strokeColor);
-        p.strokeWeight(strokeSize);
-      } else {
-        p.noStroke();
-      }
+  lazy val blocks = Array(
+    RoundedRect(0, 200, 200, blockStyle1),
+    RoundedRect(200, 250, 150, blockStyle2),
+    RoundedRect(450, 350, 250, blockStyle1),
+    RoundedRect(700, 200, 200, blockStyle2),
+    RoundedRect(900, 350, 250, blockStyle1),
+    RoundedRect(1100, 350, 200, blockStyle2))
+
+  lazy val clouds = for (i <- 0 until 5) yield {
+    Cloud.random(assets.cloudImage)
+  }
+
+  lazy val coins = for (i <- 0 until (5 + Random.nextInt(5))) yield {
+    val block = blocks(Random.nextInt(blocks.size))
+    val xMin = block.position.x + block.innerRadius
+    val xMax = block.position.x + block.width - block.innerRadius
+    val position = Vector(xMin + Random.nextDouble * (xMax - xMin), 0)
+    new Coin(position, assets.coinImage)
+  }
+  
+  val Gravity = Vector(0, 0.50f)
+
+  def setup(): Unit = {
+    ctx.canvas.width = 1400
+    ctx.canvas.height = 800
+    assets.backgroundMusic.loop = true
+    assets.backgroundMusic.play()
+  }
+
+  def loop(): Unit = {
+    draw()
+    animate()
+  }
+
+  def keyDown(e: KeyboardEvent): Unit = {
+
+  }
+
+  def keyUp(e: KeyboardEvent): Unit = {
+
+  }
+
+  def animate() = {
+    for (c <- clouds) c.animate()
+    for (c <- coins) {
+      c.animateGravity(blocks, Gravity)
+      c.animate()
     }
   }
 
-  case class RoundedRect(
-    position: PVector,
-    size: PVector,
-    innerRadius: Float,
-    style: Style) {
+  def draw() = {
+    ctx.fillStyle = "#c0ffff"
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
-    def drawRect() = {
-      style.set()
-      p.ellipseMode(RADIUS);
-      p.arc(position.x + innerRadius, position.y + innerRadius, innerRadius, innerRadius, PI, PI + HALF_PI);
-      p.arc(position.x + size.x - innerRadius, position.y + innerRadius, innerRadius, innerRadius, PI + HALF_PI, TWO_PI);
-      p.arc(position.x + size.x - innerRadius, position.y + size.y - innerRadius, innerRadius, innerRadius, 0, HALF_PI);
-      p.arc(position.x + innerRadius, position.y + size.y - innerRadius, innerRadius, innerRadius, HALF_PI, PI);
+    for (c <- clouds) c.draw
+    for (b <- blocks) b.draw
+    for (c <- coins) c.draw
 
-      p.rectMode(CORNER);
-      p.rect(position.x + innerRadius, position.y, size.x - innerRadius * 2, innerRadius);
-      p.rect(position.x + innerRadius, position.y + size.y - innerRadius, size.x - innerRadius * 2, innerRadius);
-      p.rect(position.x, position.y + innerRadius, innerRadius, size.y - innerRadius * 2);
-      p.rect(position.x + size.x - innerRadius, position.y + innerRadius, innerRadius, size.y - innerRadius * 2);
-      p.rect(position.x + innerRadius, position.y + innerRadius, size.x - innerRadius * 2, size.y - innerRadius * 2)
-    }
   }
 
-  class Cloud(cloudImage: PImage) {
-
-    //toFloat is necessary as random does not follow the 
-    //specification and sometimes returns values outside of float limits 
-    val randomScale = p.random(0.5f, 2.0f).toFloat
-    val randomScaleX = p.random(0.75f, 1.25f).toFloat
-    val randomScaleY = p.random(0.75f, 1.25f).toFloat
-
-    val w = cloudImage.width * randomScale * randomScaleX
-    val h = cloudImage.height * randomScale * randomScaleY
-
-    var x = p.random(-w, p.width).toFloat
-    var y = p.random(-h, p.height).toFloat
-
-    val vX = p.random(2, 4).toFloat
-
-    def drawCloud() = {
-      p.noTint()
-      p.imageMode(CORNER)
-      p.image(cloudImage, x, y, w, h)
-    }
-
-    def animateCloud() = {
-      x += vX;
-
-      if (x > p.width) x = -w;
-    }
-  }
-
+  /*
   trait GravityObject {
     def position: PVector
     def velocity: PVector
@@ -187,18 +182,20 @@ class Application(p: Processing) {
     override def reactToSurface() = {
       velocity.y = 0;
     }
-  }
+  }*/
 
-  class Scene {
-    val clouds = new ArrayBuffer[Cloud]
-    val blocks = new ArrayBuffer[RoundedRect]
-    val coins = new ArrayBuffer[Coin]
+  /*
+  object scene {
+    //val clouds = new ArrayBuffer[Cloud]
+    
+   // val coins = new ArrayBuffer[Coin]
 
+    /*
     val cloudImage = p.loadImage("assets/images/cloud.png")
 
     for (i <- 0 until 5) {
       clouds += new Cloud(cloudImage)
-    }
+    }*/
 
     val blockStyle1 = new Style(p.color(150, 200, 250));
     val blockStyle2 = new Style(p.color(200, 200, 250));
@@ -212,14 +209,15 @@ class Application(p: Processing) {
 
     spawnCoins(5)
 
+    /*
     def addBlock(blockStyle: Style, x: Float, blockWidth: Float, blockHeight: Float) {
       blocks += new RoundedRect(
         new PVector(x, p.height - blockHeight),
         new PVector(blockWidth, blockHeight),
         20.0f,
         blockStyle);
-    }
-
+    }*/
+/*
     def spawnCoins(numberOfCoins: Int) = {
       for (i <- 0 until numberOfCoins) {
         val randomBlockIndex = p.random(0, blocks.size).toInt
@@ -231,26 +229,11 @@ class Application(p: Processing) {
 
         coins += new Coin(new PVector(randomX, 0.0f))
       }
-    }
+    }*/
 
     def drawScene() = {
-      for (c <- clouds) {
-        c.drawCloud()
-      }
       for (b <- blocks) {
         b.drawRect()
-      }
-      for (c <- coins) {
-        c.drawCoin()
-      }
-    }
-
-    def animateScene() = {
-      for (c <- clouds) {
-        c.animateCloud()
-      }
-      for (c <- coins) {
-        c.animateGravityObject(blocks)
       }
     }
 
@@ -261,8 +244,6 @@ class Application(p: Processing) {
   val WalkAcceleration = 0.50f
   val MaxVelocity = 5.00f
   val WalkFriction = 0.80f
-
-  var scene: Scene = _
 
   def setup() = {
     p.size(1500, 800);
@@ -276,5 +257,6 @@ class Application(p: Processing) {
     scene.drawScene()
 
   }
+  * */
 
 }
