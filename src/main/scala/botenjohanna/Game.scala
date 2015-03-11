@@ -1,64 +1,53 @@
 package botenjohanna
 
-import org.scalajs.dom.CanvasRenderingContext2D
+import scala.scalajs.js.Any.fromString
+import scala.util.Random
+
 import org.scalajs.dom.raw.CanvasRenderingContext2D
-import org.scalajs.dom.raw.HTMLCanvasElement
 import org.scalajs.dom.raw.KeyboardEvent
 
-class Game(ctx: CanvasRenderingContext2D) {
+import botenjohanna.components.Cloud
+import botenjohanna.components.Coin
+import botenjohanna.components.RoundedRect
+import botenjohanna.components.Vector
 
-  case class RoundedRect(position: Vector, width: Double, height: Double, innerRadius: Double, fill: String) {
+class Game(assets: Assets)(implicit ctx: CanvasRenderingContext2D) {
 
-    def draw() = {
-      val x = position.x
-      val y = position.y
-      val r = innerRadius
+  val blockStyle1 = "#96c8fa"
+  val blockStyle2 = "#c8c8fa"
 
-      ctx.beginPath()
+  lazy val blocks = Array(
+    RoundedRect(0, 200, 200, blockStyle1),
+    RoundedRect(200, 250, 150, blockStyle2),
+    RoundedRect(450, 350, 250, blockStyle1),
+    RoundedRect(700, 200, 200, blockStyle2),
+    RoundedRect(900, 350, 250, blockStyle1),
+    RoundedRect(1100, 350, 200, blockStyle2))
 
-      /* Path drawing order 
-       * 1  8   7
-       *    --
-       * 2 |  | 6
-       *    --
-       * 3  4   5
-       */
-      ctx.moveTo(x + r, y)
-      ctx.quadraticCurveTo(x, y, x, y + r) //1
-      ctx.lineTo(x, y + height - r) //2
-      ctx.quadraticCurveTo(x, y + height, x + r, y + height) //3
-      ctx.lineTo(x + width - r, y + height) //4
-      ctx.quadraticCurveTo(x + width, y + height, x + width, y + height - r) //5
-      ctx.lineTo(x + width, y + r)
-      ctx.quadraticCurveTo(x + width, y, x + width - r, y)
-      ctx.lineTo(x + r, y)
-
-      ctx.fillStyle = fill
-      ctx.fill()
-    }
+  lazy val clouds = for (i <- 0 until 5) yield {
+    Cloud.random(assets.cloudImage)
   }
 
-  object RoundedRect {
-    def apply(x: Int, width: Double, height: Double, fill: String): RoundedRect = RoundedRect(Vector(x, ctx.canvas.height - height), width, height, 20, fill)
+  lazy val coins = for (i <- 0 until (5 + Random.nextInt(5))) yield {
+    val block = blocks(Random.nextInt(blocks.size))
+    val xMin = block.position.x + block.innerRadius
+    val xMax = block.position.x + block.width - block.innerRadius
+    val position = Vector(xMin + Random.nextDouble * (xMax - xMin), 0)
+    new Coin(position, assets.coinImage)
   }
-
-  val c1 = "#96c8fa"
-  val c2 = "#c8c8fa"
-  lazy val blocks = List(
-    RoundedRect(0, 200, 200, c1),
-    RoundedRect(200, 250, 150, c2),
-    RoundedRect(450, 350, 250, c1),
-    RoundedRect(700, 200, 200, c2),
-    RoundedRect(900, 350, 250, c1),
-    RoundedRect(1100, 350, 200, c2))
+  
+  val Gravity = Vector(0, 0.50f)
 
   def setup(): Unit = {
     ctx.canvas.width = 1400
-    ctx.canvas.height = 1000
+    ctx.canvas.height = 800
+    assets.backgroundMusic.loop = true
+    assets.backgroundMusic.play()
   }
 
   def loop(): Unit = {
     draw()
+    animate()
   }
 
   def keyDown(e: KeyboardEvent): Unit = {
@@ -69,43 +58,25 @@ class Game(ctx: CanvasRenderingContext2D) {
 
   }
 
+  def animate() = {
+    for (c <- clouds) c.animate()
+    for (c <- coins) {
+      c.animateGravity(blocks, Gravity)
+      c.animate()
+    }
+  }
+
   def draw() = {
     ctx.fillStyle = "#c0ffff"
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
+    for (c <- clouds) c.draw
     for (b <- blocks) b.draw
+    for (c <- coins) c.draw
+
   }
 
   /*
-  class Cloud(cloudImage: PImage) {
-
-    //toFloat is necessary as random does not follow the 
-    //specification and sometimes returns values outside of float limits 
-    val randomScale = p.random(0.5f, 2.0f).toFloat
-    val randomScaleX = p.random(0.75f, 1.25f).toFloat
-    val randomScaleY = p.random(0.75f, 1.25f).toFloat
-
-    val w = cloudImage.width * randomScale * randomScaleX
-    val h = cloudImage.height * randomScale * randomScaleY
-
-    var x = p.random(-w, p.width).toFloat
-    var y = p.random(-h, p.height).toFloat
-
-    val vX = p.random(2, 4).toFloat
-
-    def drawCloud() = {
-      p.noTint()
-      p.imageMode(CORNER)
-      p.image(cloudImage, x, y, w, h)
-    }
-
-    def animateCloud() = {
-      x += vX;
-
-      if (x > p.width) x = -w;
-    }
-  }
-
   trait GravityObject {
     def position: PVector
     def velocity: PVector
