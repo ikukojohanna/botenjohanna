@@ -3,24 +3,20 @@
  <html>
  <head>
  	<title>Boten Johanna</title>
- </head>
+ 	<link rel="stylesheet" type="text/css" href="assets/stylesheets/main.css">
+ </head> 
  <body>
- 	<div id="app">
- 		<canvas id="scene"></canvas>
- 	</div>
+ 	<canvas id="scene"></canvas>
 
  	<script type="text/javascript" src="assets/lib/processing.min.js"></script>
  	<script type="text/javascript" src="target/scala-2.11/botenjohanna-fastopt.js"></script>
  	<script type="text/javascript">
  		window.onload = function () {
- 			var scene = document.getElementById("scene");
-			
-			function mkSketch(processing) {
-				var launcher = new Launcher();
-				launcher.launch(processing);
-			}
+			var snd = new Audio("assets/audio/basshuunter.mp3"); // buffers automatically when created
+			snd.play();
 
-			new Processing(scene, mkSketch);
+ 			var canvas = document.getElementById("scene");
+ 			Launcher().main(canvas)
 		}
  	</script>
 </body>

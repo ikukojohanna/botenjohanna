@@ -1,58 +1,82 @@
 package botenjohanna
 
-import processing.Processing
-import processing.PConstants._
-import processing.PVector
-import scala.collection.mutable.ArrayBuffer
-import processing.PImage
+import org.scalajs.dom.CanvasRenderingContext2D
+import org.scalajs.dom.raw.CanvasRenderingContext2D
+import org.scalajs.dom.raw.HTMLCanvasElement
+import org.scalajs.dom.raw.KeyboardEvent
 
-class Application(p: Processing) {
+class Game(ctx: CanvasRenderingContext2D) {
 
-  case class Style(
-    fillColor: Int,
-    strokeColor: Int,
-    strokeSize: Int,
-    enableFill: Boolean,
-    enableStroke: Boolean) {
+  case class RoundedRect(position: Vector, width: Double, height: Double, innerRadius: Double, fill: String) {
 
-    def this(fillColor: Int) = this(fillColor, 0, 0, true, false)
+    def draw() = {
+      val x = position.x
+      val y = position.y
+      val r = innerRadius
 
-    def set() {
-      if (enableFill) p.fill(fillColor);
-      else p.noFill();
+      ctx.beginPath()
 
-      if (enableStroke) {
-        p.stroke(strokeColor);
-        p.strokeWeight(strokeSize);
-      } else {
-        p.noStroke();
-      }
+      /* Path drawing order 
+       * 1  8   7
+       *    --
+       * 2 |  | 6
+       *    --
+       * 3  4   5
+       */
+      ctx.moveTo(x + r, y)
+      ctx.quadraticCurveTo(x, y, x, y + r) //1
+      ctx.lineTo(x, y + height - r) //2
+      ctx.quadraticCurveTo(x, y + height, x + r, y + height) //3
+      ctx.lineTo(x + width - r, y + height) //4
+      ctx.quadraticCurveTo(x + width, y + height, x + width, y + height - r) //5
+      ctx.lineTo(x + width, y + r)
+      ctx.quadraticCurveTo(x + width, y, x + width - r, y)
+      ctx.lineTo(x + r, y)
+
+      ctx.fillStyle = fill
+      ctx.fill()
     }
   }
 
-  case class RoundedRect(
-    position: PVector,
-    size: PVector,
-    innerRadius: Float,
-    style: Style) {
-
-    def drawRect() = {
-      style.set()
-      p.ellipseMode(RADIUS);
-      p.arc(position.x + innerRadius, position.y + innerRadius, innerRadius, innerRadius, PI, PI + HALF_PI);
-      p.arc(position.x + size.x - innerRadius, position.y + innerRadius, innerRadius, innerRadius, PI + HALF_PI, TWO_PI);
-      p.arc(position.x + size.x - innerRadius, position.y + size.y - innerRadius, innerRadius, innerRadius, 0, HALF_PI);
-      p.arc(position.x + innerRadius, position.y + size.y - innerRadius, innerRadius, innerRadius, HALF_PI, PI);
-
-      p.rectMode(CORNER);
-      p.rect(position.x + innerRadius, position.y, size.x - innerRadius * 2, innerRadius);
-      p.rect(position.x + innerRadius, position.y + size.y - innerRadius, size.x - innerRadius * 2, innerRadius);
-      p.rect(position.x, position.y + innerRadius, innerRadius, size.y - innerRadius * 2);
-      p.rect(position.x + size.x - innerRadius, position.y + innerRadius, innerRadius, size.y - innerRadius * 2);
-      p.rect(position.x + innerRadius, position.y + innerRadius, size.x - innerRadius * 2, size.y - innerRadius * 2)
-    }
+  object RoundedRect {
+    def apply(x: Int, width: Double, height: Double, fill: String): RoundedRect = RoundedRect(Vector(x, ctx.canvas.height - height), width, height, 20, fill)
   }
 
+  val c1 = "#96c8fa"
+  val c2 = "#c8c8fa"
+  lazy val blocks = List(
+    RoundedRect(0, 200, 200, c1),
+    RoundedRect(200, 250, 150, c2),
+    RoundedRect(450, 350, 250, c1),
+    RoundedRect(700, 200, 200, c2),
+    RoundedRect(900, 350, 250, c1),
+    RoundedRect(1100, 350, 200, c2))
+
+  def setup(): Unit = {
+    ctx.canvas.width = 1400
+    ctx.canvas.height = 1000
+  }
+
+  def loop(): Unit = {
+    draw()
+  }
+
+  def keyDown(e: KeyboardEvent): Unit = {
+
+  }
+
+  def keyUp(e: KeyboardEvent): Unit = {
+
+  }
+
+  def draw() = {
+    ctx.fillStyle = "#c0ffff"
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+
+    for (b <- blocks) b.draw
+  }
+
+  /*
   class Cloud(cloudImage: PImage) {
 
     //toFloat is necessary as random does not follow the 
@@ -187,18 +211,20 @@ class Application(p: Processing) {
     override def reactToSurface() = {
       velocity.y = 0;
     }
-  }
+  }*/
 
-  class Scene {
-    val clouds = new ArrayBuffer[Cloud]
-    val blocks = new ArrayBuffer[RoundedRect]
-    val coins = new ArrayBuffer[Coin]
+  /*
+  object scene {
+    //val clouds = new ArrayBuffer[Cloud]
+    
+   // val coins = new ArrayBuffer[Coin]
 
+    /*
     val cloudImage = p.loadImage("assets/images/cloud.png")
 
     for (i <- 0 until 5) {
       clouds += new Cloud(cloudImage)
-    }
+    }*/
 
     val blockStyle1 = new Style(p.color(150, 200, 250));
     val blockStyle2 = new Style(p.color(200, 200, 250));
@@ -212,14 +238,15 @@ class Application(p: Processing) {
 
     spawnCoins(5)
 
+    /*
     def addBlock(blockStyle: Style, x: Float, blockWidth: Float, blockHeight: Float) {
       blocks += new RoundedRect(
         new PVector(x, p.height - blockHeight),
         new PVector(blockWidth, blockHeight),
         20.0f,
         blockStyle);
-    }
-
+    }*/
+/*
     def spawnCoins(numberOfCoins: Int) = {
       for (i <- 0 until numberOfCoins) {
         val randomBlockIndex = p.random(0, blocks.size).toInt
@@ -231,26 +258,11 @@ class Application(p: Processing) {
 
         coins += new Coin(new PVector(randomX, 0.0f))
       }
-    }
+    }*/
 
     def drawScene() = {
-      for (c <- clouds) {
-        c.drawCloud()
-      }
       for (b <- blocks) {
         b.drawRect()
-      }
-      for (c <- coins) {
-        c.drawCoin()
-      }
-    }
-
-    def animateScene() = {
-      for (c <- clouds) {
-        c.animateCloud()
-      }
-      for (c <- coins) {
-        c.animateGravityObject(blocks)
       }
     }
 
@@ -261,8 +273,6 @@ class Application(p: Processing) {
   val WalkAcceleration = 0.50f
   val MaxVelocity = 5.00f
   val WalkFriction = 0.80f
-
-  var scene: Scene = _
 
   def setup() = {
     p.size(1500, 800);
@@ -276,5 +286,6 @@ class Application(p: Processing) {
     scene.drawScene()
 
   }
+  * */
 
 }

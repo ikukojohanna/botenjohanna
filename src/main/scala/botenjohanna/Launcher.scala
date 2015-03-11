@@ -1,18 +1,21 @@
 package botenjohanna
 
-import processing._
 import scala.scalajs.js.annotation.JSExport
-import scala.scalajs.js.Any.fromFunction0
+import org.scalajs.dom
+import org.scalajs.dom.raw.KeyboardEvent
 
 /** Utility class to launch an application */
 @JSExport("Launcher")
-class Launcher {
+object Launcher {
   
-  @JSExport
-  def launch(processing: Processing): Unit = {
-    val app = new Application(processing)
-    processing.setup = () => app.setup()
-    processing.draw = () => app.draw()
+  @JSExport 
+  def main(canvas: dom.raw.HTMLCanvasElement): Unit = {
+    val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+    val app = new Game(ctx)
+    app.setup()
+    dom.setInterval(() => app.loop(), 1000.0/60) // target 60 FPS
+    dom.onkeydown = (e: KeyboardEvent) => app.keyDown(e)
+    dom.onkeyup = (e: KeyboardEvent) => app.keyUp(e)
   }
   
 }
