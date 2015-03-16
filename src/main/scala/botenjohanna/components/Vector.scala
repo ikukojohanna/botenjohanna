@@ -7,5 +7,5 @@ case class Vector(x: Double, y: Double) {
 }
 
 object Vector {
-  def Null = Vector(0,0)
+  def Null = Vector(0, 0)
 }
