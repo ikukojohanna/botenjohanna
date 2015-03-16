@@ -52,11 +52,11 @@ class Game(assets: Assets)(implicit ctx: CanvasRenderingContext2D) {
   }
 
   def keyDown(e: KeyboardEvent): Unit = {
-    keys += e.key.head
+    keys += e.keyCode.toChar.toLower
   }
 
   def keyUp(e: KeyboardEvent): Unit = {
-    keys -= e.key.head
+    keys -= e.keyCode.toChar.toLower
   }
 
   def reset() = {
