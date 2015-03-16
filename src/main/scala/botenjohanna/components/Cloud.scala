@@ -1,8 +1,9 @@
 package botenjohanna.components
 
 import scala.util.Random
-import org.scalajs.dom.raw.HTMLImageElement
+
 import org.scalajs.dom.raw.CanvasRenderingContext2D
+import org.scalajs.dom.raw.HTMLImageElement
 
 class Cloud(image: HTMLImageElement, position: Vector, vX: Double, width: Double, height: Double)(implicit ctx: CanvasRenderingContext2D) {
   var x = position.x

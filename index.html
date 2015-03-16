@@ -6,21 +6,47 @@
  	<link rel="stylesheet" type="text/css" href="assets/stylesheets/main.css">
  </head> 
  <body>
+ 	<div id="loading">Loading...</div>
  	<canvas id="scene"></canvas>
+ 	<div id="footer">
+ 		<span style="float: left">controls: 'o' left; 'p' right; &ltspace&gt jump</span>
+ 		<span style="float: right">best viewed at 1400x800 px</span>
+ 	</div>
  	<div style="display: none;">
  		<img id="cloudImage" src="assets/images/cloud.png">
  		<img id="coinImage" src="assets/images/coin_gold.png">
  		<audio id="backgroundMusic" src="assets/audio/basshuunter.mp3">
+ 		<img id="jump" src="assets/images/jump.png">
+ 		<img id="side" src="assets/images/side.png">
+ 		<img id="walk1" src="assets/images/walk/walk0001.png">
+ 		<img id="walk2" src="assets/images/walk/walk0002.png">
+ 		<img id="walk3" src="assets/images/walk/walk0003.png">
+ 		<img id="walk4" src="assets/images/walk/walk0004.png">
+ 		<img id="walk5" src="assets/images/walk/walk0005.png">
+ 		<img id="walk6" src="assets/images/walk/walk0006.png">
+ 		<img id="walk7" src="assets/images/walk/walk0007.png">
+ 		<img id="walk8" src="assets/images/walk/walk0008.png">
+ 		<img id="walk9" src="assets/images/walk/walk0009.png">
+ 		<img id="walk10" src="assets/images/walk/walk0010.png">
+ 		<img id="walk11" src="assets/images/walk/walk0011.png">
+ 		
  	</div>
 
  	<script type="text/javascript" src="target/scala-2.11/botenjohanna-opt.js"></script>
  	<script type="text/javascript">
  		window.onload = function () {
+ 			document.getElementById("loading").style.display = "none";
+ 			var assets = {
+ 				cloudImage: document.getElementById("cloudImage"),
+ 				coinImage: document.getElementById("coinImage"),
+ 				backgroundMusic: document.getElementById("backgroundMusic"),
+ 				jump: document.getElementById("jump"),
+ 				side: document.getElementById("side"),
+ 				walks: Array.prototype.slice.call(document.querySelectorAll("img[id^='walk']"))
+ 			}
  			Launcher().main(
  				document.getElementById("scene"),
- 				document.getElementById("cloudImage"),
- 				document.getElementById("coinImage"),
- 				document.getElementById("backgroundMusic")
+ 				assets
  			)
 		}
  	</script>
