@@ -1,3 +1,3 @@
 # Boten Johanna
 
-A trashy game written in ScalaJS. Available [here](http://ikukojohanna.github.io/botenjohanna).
+A trashy game written in ScalaJS. Available [here](https://ikukojohanna.github.io/botenjohanna/).
